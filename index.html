@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মেহেদীর হিসাব খাতা</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Hind Siliguri for clean Bengali typography) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Gradient Cards Styling */
+        .card-gradient-investment {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .card-gradient-return {
+            background: linear-gradient(135deg, #064e3b 0%, #0f766e 100%);
+        }
+        .card-gradient-remaining {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+        .amount-glow-investment {
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        }
+        .amount-glow-return {
+            text-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
+        }
+        .amount-glow-remaining {
+            text-shadow: 0 0 15px rgba(129, 140, 248, 0.5);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Category Dropdown Menu Styles (Positioned UPWARDS/ABOVE) */
+        .category-dropdown-menu {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-height: 180px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1), 0 -8px 10px -6px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 antialiased">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Left: Logo -->
+            <div class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none" onclick="navigateTo('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-200">
+                    <i class="fa-solid fa-wallet text-xl"></i>
+                </div>
+            </div>
+
+            <!-- Center: Title -->
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800 tracking-wide text-center flex-grow cursor-pointer select-none" onclick="navigateTo('dashboard')">
+                হিসাব খাতা
+            </h1>
+
+            <div class="w-10"></div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-4 md:p-6">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view" class="space-y-6">
+            
+            <!-- 1. Total Investment Card -->
+            <div class="card-gradient-investment text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden transition-transform duration-300">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2 pb-6 border-b border-slate-700/60">
+                    <div>
+                        <h2 class="text-lg md:text-xl font-medium text-slate-200">মোট ইনভেস্টমেন্ট</h2>
+                    </div>
+                    <div class="text-right self-end sm:self-auto">
+                        <div id="total-amount" class="text-3xl md:text-5xl font-extrabold text-emerald-400 amount-glow-investment tracking-tight">
+                            ৳ ০.০০
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-6">
+                    <div>
+                        <p class="text-sm text-slate-400">মোট ইনভেস্টমেন্ট এন্ট্রি</p>
+                        <p id="total-entries" class="text-2xl font-bold text-slate-100 mt-0.5">০ টি</p>
+                    </div>
+
+                    <button type="button" onclick="openEntryForm('investment')" title="নতুন ইনভেস্টমেন্ট যোগ করুন" class="w-14 h-14 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none">
+                        <i class="fa-solid fa-plus text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Total Return Card -->
+            <div class="card-gradient-return text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden transition-transform duration-300">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-teal-300/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-emerald-300/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2 pb-6 border-b border-teal-800/60">
+                    <div>
+                        <h2 class="text-lg md:text-xl font-medium text-teal-50">মোট রিটার্ন</h2>
+                    </div>
+                    <div class="text-right self-end sm:self-auto">
+                        <div id="total-return-amount" class="text-3xl md:text-5xl font-extrabold text-teal-200 amount-glow-return tracking-tight">
+                            ৳ ০.০০
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-6">
+                    <div>
+                        <p class="text-sm text-teal-200/80">মোট রিটার্ন এন্ট্রি</p>
+                        <p id="total-return-entries" class="text-2xl font-bold text-slate-100 mt-0.5">০ টি</p>
+                    </div>
+
+                    <button type="button" onclick="openEntryForm('return')" title="নতুন রিটার্ন যোগ করুন" class="w-14 h-14 bg-teal-300 hover:bg-teal-200 text-teal-950 font-bold rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/30 transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none">
+                        <i class="fa-solid fa-plus text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. Total Remaining Card -->
+            <div onclick="navigateTo('history')" class="card-gradient-remaining text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer border border-indigo-500/30">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-violet-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-row justify-between items-center gap-4">
+                    <div class="flex-shrink-0">
+                        <h2 class="text-xl sm:text-2xl font-bold text-indigo-100">মোট বাকি</h2>
+                    </div>
+                    <div class="text-right min-w-0">
+                        <div id="total-remaining-amount" class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-indigo-300 amount-glow-remaining tracking-tight truncate">
+                            ৳ ০.০০
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- HISTORY & SEARCH VIEW -->
+        <section id="history-view" class="hidden space-y-6 max-w-4xl mx-auto">
+            <!-- Header Bar -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-5 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <button type="button" onclick="goBackOrDashboard()" class="w-10 h-10 rounded-xl border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-50 transition active:scale-95">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">লেনদেনের হিস্ট্রি ও ফিল্টার</h2>
+                        <p class="text-xs text-slate-400">সহজেই তথ্য ফিল্টার ও সার্চ করুন</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 text-xs font-semibold">
+                    <div class="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200">
+                        মোট প্রাপ্তি: <span id="history-count" class="text-emerald-600 font-bold">০</span>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-100">
+                        <span id="history-sum-label">যোগফল:</span> <span id="history-filtered-sum" class="font-bold">৳ ০.০০</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Controls Box -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-5 md:p-6 shadow-sm space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">কীওয়ার্ড সার্চ</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" id="history-search-input" oninput="applyHistoryFilters()" placeholder="ক্যাটাগরি বা বিবরণ..." class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">এন্ট্রি টাইপ</label>
+                        <select id="history-type-filter" onchange="applyHistoryFilters()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition bg-white">
+                            <option value="all">সব এন্ট্রি (ইনভেস্টমেন্ট ও রিটার্ন)</option>
+                            <option value="investment">শুধুমাত্র ইনভেস্টমেন্ট</option>
+                            <option value="return">শুধুমাত্র রিটার্ন</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">তারিখ নির্বাচন</label>
+                        <select id="history-date-filter" onchange="handleDateFilterChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition bg-white">
+                            <option value="all">সকল সময়</option>
+                            <option value="today">আজ</option>
+                            <option value="last_week">গত সপ্তাহ (৭ দিন)</option>
+                            <option value="last_month">গত মাস (৩০ দিন)</option>
+                            <option value="custom">কাস্টম তারিখ দিয়ে</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="custom-date-container" class="hidden grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">শুরুর তারিখ</label>
+                        <input type="date" id="history-start-date" onchange="applyHistoryFilters()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">শেষ তারিখ</label>
+                        <input type="date" id="history-end-date" onchange="applyHistoryFilters()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-indigo-500 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- History List Container -->
+            <div id="history-list-container" class="space-y-3">
+                <!-- Dynamic Content -->
+            </div>
+        </section>
+
+        <!-- NEW ENTRY VIEW -->
+        <section id="new-entry-view" class="hidden max-w-xl mx-auto">
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
+                <div class="flex items-center space-x-3 space-x-reverse mb-6 pb-4 border-b border-slate-100">
+                    <button type="button" onclick="goBackOrDashboard()" class="w-9 h-9 rounded-xl border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 id="form-title" class="text-xl font-bold text-slate-800">নতুন এন্ট্রি</h2>
+                        <p class="text-xs text-slate-400">তথ্যসমূহ দিয়ে ফর্মটি সঠিকভাবে পূরণ করুন</p>
+                    </div>
+                </div>
+
+                <form id="entry-form" onsubmit="handleSaveEntry(event)" class="space-y-5">
+                    <input type="hidden" id="entry-type" value="investment">
+                    <input type="hidden" id="editing-entry-id" value="">
+
+                    <div>
+                        <label for="entry-date" class="block text-sm font-semibold text-slate-700 mb-2">
+                            তারিখ নির্বাচন করুন <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="date" id="entry-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition text-slate-800">
+                    </div>
+
+                    <div>
+                        <label for="entry-category" class="block text-sm font-semibold text-slate-700 mb-2">
+                            ক্যাটাগরি <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative w-full id-category-wrapper">
+                            <div class="relative flex items-center w-full">
+                                <input type="text" id="entry-category" placeholder="যেমন: পার্টস" required autocomplete="off" onfocus="showCategoryDropdown()" oninput="filterCategories()" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition text-slate-800 text-sm sm:text-base">
+                                
+                                <button type="button" onclick="toggleCategoryDropdown(event)" class="absolute right-2 text-slate-400 hover:text-slate-600 p-2 transition focus:outline-none">
+                                    <i id="category-arrow-icon" class="fa-solid fa-chevron-down text-sm transition-transform duration-200"></i>
+                                </button>
+                            </div>
+
+                            <div id="category-custom-dropdown" class="category-dropdown-menu hidden">
+                                <div id="category-list-items" class="py-1"></div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">পছন্দমতো ক্যাটাগরি বেছে নিন অথবা আপনার মতো নাম টাইপ করুন</p>
+                    </div>
+
+                    <div>
+                        <label for="entry-amount" class="block text-sm font-semibold text-slate-700 mb-2">
+                            টাকার পরিমাণ (৳) <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">৳</span>
+                            <input type="number" id="entry-amount" min="1" step="any" placeholder="0.00" required class="w-full pl-9 pr-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition text-slate-800 font-semibold text-lg">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="entry-description" class="block text-sm font-semibold text-slate-700 mb-2">
+                            বিবরণ <span class="text-xs font-normal text-slate-400">(ঐচ্ছিক)</span>
+                        </label>
+                        <textarea id="entry-description" rows="3" placeholder="সংক্রান্ত অতিরিক্ত তথ্য বা নোট..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition text-slate-800 text-sm resize-none"></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="cancelEntry()" class="w-1/2 py-3 px-4 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100 transition active:scale-95 text-center">
+                            বাতিল করুন
+                        </button>
+                        <button type="submit" id="save-submit-btn" class="w-1/2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md shadow-emerald-200 transition active:scale-95 text-center">
+                            সেভ করুন
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 space-x-reverse z-50 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message" class="text-sm font-medium">মেসেজ</span>
+    </div>
+
+    <!-- Firebase SDK Scripts (Compat version for smooth web integration) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9Z1RwkxF6CMJO_UCv0Z8ciIwJw_so2XU",
+            authDomain: "job-expense-tracker-1c930.firebaseapp.com",
+            databaseURL: "https://job-expense-tracker-1c930-default-rtdb.firebaseio.com",
+            projectId: "job-expense-tracker-1c930",
+            storageBucket: "job-expense-tracker-1c930.firebasestorage.app",
+            messagingSenderId: "892600652284",
+            appId: "1:892600652284:web:99275aee51b9aaded7a279",
+            measurementId: "G-F8XK62QRKC"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let investments = [];
+        let returns = [];
+        let currentView = 'dashboard';
+
+        const defaultInvestmentCategories = [];
+        const defaultReturnCategories = [];
+
+        function toBengaliNumerals(num) {
+            if (num === null || num === undefined) return '০';
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return num.toString().replace(/\d/g, d => bnDigits[d]);
+        }
+
+        function formatCurrency(amount) {
+            const val = parseFloat(amount) || 0;
+            const formatted = new Intl.NumberFormat('bn-BD', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(val);
+            return `৳ ${formatted}`;
+        }
+
+        function formatBengaliDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return `${toBengaliNumerals(parts[2])}/${toBengaliNumerals(parts[1])}/${toBengaliNumerals(parts[0])}`;
+        }
+
+        const dashboardView = document.getElementById('dashboard-view');
+        const historyView = document.getElementById('history-view');
+        const newEntryView = document.getElementById('new-entry-view');
+        
+        const totalAmountEl = document.getElementById('total-amount');
+        const totalEntriesEl = document.getElementById('total-entries');
+        const totalReturnAmountEl = document.getElementById('total-return-amount');
+        const totalReturnEntriesEl = document.getElementById('total-return-entries');
+        const totalRemainingAmountEl = document.getElementById('total-remaining-amount');
+        
+        const categoryInput = document.getElementById('entry-category');
+        const categoryCustomDropdown = document.getElementById('category-custom-dropdown');
+        const categoryListItems = document.getElementById('category-list-items');
+        const categoryArrowIcon = document.getElementById('category-arrow-icon');
+        const entryTypeInput = document.getElementById('entry-type');
+
+        // Setup browser history state for smooth back button behavior
+        window.addEventListener('DOMContentLoaded', function() {
+            resetEntryDate();
+            initRealtimeSync();
+            renderCategorySuggestions();
+            
+            history.replaceState({ view: 'dashboard' }, '');
+        });
+
+        // Realtime Data Sync from Firebase Firestore
+        function initRealtimeSync() {
+            // Listen for investments
+            db.collection("investments").onSnapshot((snapshot) => {
+                investments = [];
+                snapshot.forEach((doc) => {
+                    investments.push({ id: doc.id, ...doc.data() });
+                });
+                renderDashboard();
+                if (currentView === 'history') applyHistoryFilters();
+            }, (error) => {
+                console.error("Error fetching investments: ", error);
+            });
+
+            // Listen for returns
+            db.collection("returns").onSnapshot((snapshot) => {
+                returns = [];
+                snapshot.forEach((doc) => {
+                    returns.push({ id: doc.id, ...doc.data() });
+                });
+                renderDashboard();
+                if (currentView === 'history') applyHistoryFilters();
+            }, (error) => {
+                console.error("Error fetching returns: ", error);
+            });
+        }
+
+        // Handle browser Back / Forward buttons
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.view) {
+                showView(event.state.view, false);
+            } else {
+                showView('dashboard', false);
+            }
+        });
+
+        function navigateTo(viewName) {
+            if (currentView !== viewName) {
+                history.pushState({ view: viewName }, '');
+            }
+            showView(viewName, false);
+        }
+
+        function goBackOrDashboard() {
+            if (history.state && history.state.view && history.state.view !== 'dashboard') {
+                history.back();
+            } else {
+                navigateTo('dashboard');
+            }
+        }
+
+        function showView(viewName, pushHistory = true) {
+            if (pushHistory && currentView !== viewName) {
+                history.pushState({ view: viewName }, '');
+            }
+
+            currentView = viewName;
+            dashboardView.classList.add('hidden');
+            historyView.classList.add('hidden');
+            newEntryView.classList.add('hidden');
+
+            if (viewName === 'dashboard') {
+                dashboardView.classList.remove('hidden');
+                renderDashboard();
+            } else if (viewName === 'history') {
+                historyView.classList.remove('hidden');
+                applyHistoryFilters();
+            } else if (viewName === 'new-entry') {
+                newEntryView.classList.remove('hidden');
+                renderCategorySuggestions();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openEntryForm(type) {
+            entryTypeInput.value = type;
+            document.getElementById('editing-entry-id').value = '';
+            document.getElementById('entry-form').reset();
+            resetEntryDate();
+
+            const formTitle = document.getElementById('form-title');
+            const saveBtn = document.getElementById('save-submit-btn');
+
+            if (type === 'return') {
+                formTitle.textContent = 'নতুন রিটার্ন এন্ট্রি';
+                saveBtn.className = "w-1/2 py-3 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-md shadow-teal-200 transition active:scale-95 text-center";
+            } else {
+                formTitle.textContent = 'নতুন ইনভেস্টমেন্ট এন্ট্রি';
+                saveBtn.className = "w-1/2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md shadow-emerald-200 transition active:scale-95 text-center";
+            }
+
+            navigateTo('new-entry');
+        }
+
+        function resetEntryDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entry-date').value = today;
+        }
+
+        window.addEventListener('click', function(e) {
+            const categoryWrapper = document.querySelector('.id-category-wrapper');
+            if (categoryWrapper && !categoryWrapper.contains(e.target)) {
+                hideCategoryDropdown();
+            }
+        });
+
+        function renderDashboard() {
+            const totalInvestmentSum = investments.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+            totalAmountEl.textContent = formatCurrency(totalInvestmentSum);
+            totalEntriesEl.textContent = `${toBengaliNumerals(investments.length)} টি`;
+
+            const totalReturnSum = returns.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+            totalReturnAmountEl.textContent = formatCurrency(totalReturnSum);
+            totalReturnEntriesEl.textContent = `${toBengaliNumerals(returns.length)} টি`;
+
+            const totalRemainingSum = totalInvestmentSum - totalReturnSum;
+            totalRemainingAmountEl.textContent = formatCurrency(totalRemainingSum);
+        }
+
+        function handleDateFilterChange() {
+            const dateOption = document.getElementById('history-date-filter').value;
+            const customDateContainer = document.getElementById('custom-date-container');
+            if (dateOption === 'custom') {
+                customDateContainer.classList.remove('hidden');
+            } else {
+                customDateContainer.classList.add('hidden');
+            }
+            applyHistoryFilters();
+        }
+
+        function applyHistoryFilters() {
+            const searchQuery = document.getElementById('history-search-input').value.trim().toLowerCase();
+            const typeFilter = document.getElementById('history-type-filter').value;
+            const dateFilter = document.getElementById('history-date-filter').value;
+
+            let combined = [
+                ...investments.map(item => ({ ...item, type: 'investment' })),
+                ...returns.map(item => ({ ...item, type: 'return' }))
+            ];
+
+            if (typeFilter === 'investment') {
+                combined = combined.filter(i => i.type === 'investment');
+            } else if (typeFilter === 'return') {
+                combined = combined.filter(i => i.type === 'return');
+            }
+
+            if (searchQuery) {
+                combined = combined.filter(item => 
+                    (item.category && item.category.toLowerCase().includes(searchQuery)) ||
+                    (item.description && item.description.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            const now = new Date();
+            const todayStr = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
+            if (dateFilter === 'today') {
+                combined = combined.filter(item => item.date === todayStr);
+            } else if (dateFilter === 'last_week') {
+                const past7Days = new Date();
+                past7Days.setDate(past7Days.getDate() - 7);
+                const past7Str = past7Days.toISOString().split('T')[0];
+                combined = filterByDateRange(combined, past7Str, todayStr);
+            } else if (dateFilter === 'last_month') {
+                const past30Days = new Date();
+                past30Days.setDate(past30Days.getDate() - 30);
+                const past30Str = past30Days.toISOString().split('T')[0];
+                combined = filterByDateRange(combined, past30Str, todayStr);
+            } else if (dateFilter === 'custom') {
+                const startDate = document.getElementById('history-start-date').value;
+                const endDate = document.getElementById('history-end-date').value;
+                if (startDate) {
+                    combined = combined.filter(item => item.date >= startDate);
+                }
+                if (endDate) {
+                    combined = combined.filter(item => item.date <= endDate);
+                }
+            }
+
+            combined.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('history-count').textContent = toBengaliNumerals(combined.length);
+
+            let calculatedSum = 0;
+            const sumLabelEl = document.getElementById('history-sum-label');
+
+            if (typeFilter === 'all') {
+                sumLabelEl.textContent = "মোট বাকি:";
+                const investmentSum = combined
+                    .filter(item => item.type === 'investment')
+                    .reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+                const returnSum = combined
+                    .filter(item => item.type === 'return')
+                    .reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+                
+                calculatedSum = investmentSum - returnSum;
+            } else if (typeFilter === 'investment') {
+                sumLabelEl.textContent = "মোট ইনভেস্টমেন্ট:";
+                calculatedSum = combined.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            } else if (typeFilter === 'return') {
+                sumLabelEl.textContent = "মোট রিটার্ন:";
+                calculatedSum = combined.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            }
+
+            document.getElementById('history-filtered-sum').textContent = formatCurrency(calculatedSum);
+
+            renderHistoryList(combined);
+        }
+
+        function filterByDateRange(list, startStr, endStr) {
+            return list.filter(item => item.date >= startStr && item.date <= endStr);
+        }
+
+        function renderHistoryList(items) {
+            const container = document.getElementById('history-list-container');
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-3xl p-8 border border-slate-200/80 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-sm">কোনো লেনদেনের এন্ট্রি পাওয়া যায়নি</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                const isInvestment = item.type === 'investment';
+                const badgeColor = isInvestment ? 'bg-emerald-100 text-emerald-800' : 'bg-teal-100 text-teal-800';
+                const typeText = isInvestment ? 'ইনভেস্টমেন্ট' : 'রিটার্ন';
+                const amountColor = isInvestment ? 'text-emerald-600' : 'text-teal-600';
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3">
+                        <div class="space-y-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${badgeColor}">
+                                    ${typeText}
+                                </span>
+                                <h3 class="font-bold text-slate-800 text-base truncate">${escapeHtml(item.category)}</h3>
+                            </div>
+                            ${item.description ? `<p class="text-xs text-slate-500 truncate">${escapeHtml(item.description)}</p>` : ''}
+                            <p class="text-xs text-slate-600 font-semibold flex items-center gap-1.5 pt-0.5">
+                                <i class="fa-regular fa-calendar-days text-slate-400"></i> <span>তারিখ: ${formatBengaliDate(item.date)}</span>
+                            </p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <span class="text-lg sm:text-xl font-extrabold ${amountColor}">
+                                ${formatCurrency(item.amount)}
+                            </span>
+                            <div class="flex items-center justify-end gap-2 mt-1">
+                                <button onclick="editEntry('${item.id}', '${item.type}')" title="এডিট করুন" class="text-xs text-indigo-500 hover:text-indigo-700 p-1 transition">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteEntry('${item.id}', '${item.type}')" title="ডিলিট করুন" class="text-xs text-rose-400 hover:text-rose-600 p-1 transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getAllCategories() {
+            const currentType = entryTypeInput.value;
+            if (currentType === 'return') {
+                const existingUserCategories = returns.map(i => i.category);
+                return Array.from(new Set([...defaultReturnCategories, ...existingUserCategories]));
+            } else {
+                const existingUserCategories = investments.map(i => i.category);
+                return Array.from(new Set([...defaultInvestmentCategories, ...existingUserCategories]));
+            }
+        }
+
+        function renderCategorySuggestions(filterText = '') {
+            const categories = getAllCategories();
+            const filtered = categories.filter(cat => cat.toLowerCase().includes(filterText.toLowerCase()));
+
+            if (filtered.length === 0) {
+                categoryListItems.innerHTML = `
+                    <div class="px-4 py-2.5 text-xs text-slate-400 italic break-words">
+                        নতুন ক্যাটাগরি: "${escapeHtml(filterText)}"
+                    </div>
+                `;
+                return;
+            }
+
+            categoryListItems.innerHTML = filtered.map(cat => `
+                <button type="button" onclick="selectCategory('${escapeHtml(cat)}')" class="w-full text-left px-4 py-2.5 text-xs sm:text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 flex items-center justify-between transition gap-2">
+                    <span class="truncate flex-grow">${escapeHtml(cat)}</span>
+                    <i class="fa-solid fa-angle-right text-xs text-slate-300 flex-shrink-0"></i>
+                </button>
+            `).join('');
+        }
+
+        function showCategoryDropdown() {
+            renderCategorySuggestions(categoryInput.value.trim());
+            categoryCustomDropdown.classList.remove('hidden');
+            categoryArrowIcon.classList.add('rotate-180');
+        }
+
+        function hideCategoryDropdown() {
+            categoryCustomDropdown.classList.add('hidden');
+            categoryArrowIcon.classList.remove('rotate-180');
+        }
+
+        function toggleCategoryDropdown(e) {
+            if (e) e.stopPropagation();
+            if (categoryCustomDropdown.classList.contains('hidden')) {
+                showCategoryDropdown();
+            } else {
+                hideCategoryDropdown();
+            }
+        }
+
+        function filterCategories() {
+            showCategoryDropdown();
+        }
+
+        function selectCategory(catName) {
+            categoryInput.value = catName;
+            hideCategoryDropdown();
+        }
+
+        function editEntry(id, type) {
+            const list = type === 'return' ? returns : investments;
+            const item = list.find(i => i.id === id);
+            if (!item) return;
+
+            entryTypeInput.value = type;
+            document.getElementById('editing-entry-id').value = id;
+            document.getElementById('entry-date').value = item.date;
+            categoryInput.value = item.category;
+            document.getElementById('entry-amount').value = item.amount;
+            document.getElementById('entry-description').value = item.description || '';
+
+            const formTitle = document.getElementById('form-title');
+            const saveBtn = document.getElementById('save-submit-btn');
+
+            if (type === 'return') {
+                formTitle.textContent = 'রিটার্ন এডিট করুন';
+                saveBtn.className = "w-1/2 py-3 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-md shadow-teal-200 transition active:scale-95 text-center";
+            } else {
+                formTitle.textContent = 'ইনভেস্টমেন্ট এডিট করুন';
+                saveBtn.className = "w-1/2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md shadow-emerald-200 transition active:scale-95 text-center";
+            }
+
+            navigateTo('new-entry');
+        }
+
+        function deleteEntry(id, type) {
+            if (!confirm('আপনি কি সত্যিই এই এন্ট্রিটি ডিলিট করতে চান?')) return;
+
+            const collectionName = type === 'return' ? 'returns' : 'investments';
+
+            db.collection(collectionName).doc(id).delete().then(() => {
+                showToast('এন্ট্রি ডিলিট করা হয়েছে');
+            }).catch((error) => {
+                console.error("Error removing document: ", error);
+                showToast('ডিলিট করতে সমস্যা হয়েছে', 'error');
+            });
+        }
+
+        function handleSaveEntry(e) {
+            e.preventDefault();
+
+            const type = entryTypeInput.value;
+            const editId = document.getElementById('editing-entry-id').value;
+            const date = document.getElementById('entry-date').value;
+            const category = categoryInput.value.trim();
+            const amount = parseFloat(document.getElementById('entry-amount').value);
+            const description = document.getElementById('entry-description').value.trim();
+
+            if (!date || !category || isNaN(amount) || amount <= 0) {
+                showToast('অনুগ্রহ করে সকল তথ্য সঠিকভাবে দিন', 'error');
+                return;
+            }
+
+            const collectionName = type === 'return' ? 'returns' : 'investments';
+            const entryData = {
+                date: date,
+                category: category,
+                amount: amount,
+                description: description,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (editId) {
+                // Update existing document
+                db.collection(collectionName).doc(editId).update(entryData).then(() => {
+                    showToast('এন্ট্রি সফলভাবে আপডেট হয়েছে!');
+                    finalizeSave();
+                }).catch((error) => {
+                    console.error("Error updating document: ", error);
+                    showToast('আপডেট করতে সমস্যা হয়েছে', 'error');
+                });
+            } else {
+                // Add new document
+                db.collection(collectionName).add(entryData).then(() => {
+                    if (type === 'return') {
+                        showToast('নতুন রিটার্ন সফলভাবে সেভ হয়েছে!');
+                    } else {
+                        showToast('নতুন ইনভেস্টমেন্ট সফলভাবে সেভ হয়েছে!');
+                    }
+                    finalizeSave();
+                }).catch((error) => {
+                    console.error("Error adding document: ", error);
+                    showToast('সেভ করতে সমস্যা হয়েছে', 'error');
+                });
+            }
+        }
+
+        function finalizeSave() {
+            document.getElementById('editing-entry-id').value = '';
+            document.getElementById('entry-form').reset();
+            resetEntryDate();
+            hideCategoryDropdown();
+            goBackOrDashboard();
+        }
+
+        function cancelEntry() {
+            document.getElementById('editing-entry-id').value = '';
+            document.getElementById('entry-form').reset();
+            resetEntryDate();
+            hideCategoryDropdown();
+            goBackOrDashboard();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = message;
+            if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-lg';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+    </script>
+</body>
+</html>
